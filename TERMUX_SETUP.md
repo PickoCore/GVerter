@@ -1,358 +1,536 @@
 # Setup Guide - Termux (Android)
 
-Guide lengkap untuk menjalankan Minecraft Resource Pack Converter di Termux.
+Panduan lengkap untuk menjalankan GVerterx di Termux Android.
 
 ## 📱 Prerequisites
 
-1. **Termux App** - Download dari F-Droid atau Google Play
-2. **Internet Connection** - Untuk download dependencies
-3. **Storage Access** - Enable storage permissions
+- **Termux App** - Download dari [F-Droid](https://f-droid.org/packages/com.termux/) (Recommended) atau Google Play
+- **Internet Connection** - Untuk download dependencies (~150MB)
+- **Storage Access** - Folder untuk input/output packs
+- **Minimal 500MB free storage** - Untuk project + dependencies
 
-## ⚙️ Installation Steps
+> **Tip:** F-Droid version lebih stabil. Hindari Google Play versi jika bisa.
 
-### 1. Update Termux Package Manager
+---
+
+## ⚙️ Installation Steps (15 Menit)
+
+### Step 1: Update Termux Package Manager
+
 ```bash
 pkg update
 pkg upgrade -y
 ```
 
-### 2. Install Python & Dependencies
+**Expected Output:**
+```
+Processing triggers for termux-tools ...
+upgrade-gradle is already the newest version (7.5)
+...
+```
+
+### Step 2: Install Required Packages
+
+**Install Python & Tools:**
 ```bash
-# Install Python 3
+# Install Python 3 (3.10+)
 pkg install python -y
 
-# Install build tools (untuk compile some packages)
-pkg install build-essential -y
+# Install Git (untuk clone repository)
+pkg install git -y
 
-# Install ffmpeg (untuk audio conversion)
+# Install FFmpeg (untuk audio conversion)
 pkg install ffmpeg -y
 
-# Install git (optional, untuk clone repo)
-pkg install git -y
+# Install build tools (untuk compile packages)
+pkg install build-essential -y
+
+# Install pkg-config (untuk some packages)
+pkg install pkg-config -y
 ```
 
-### 3. Setup Storage Access
+**Total installation time: ~5-10 minutes** (tergantung kecepatan internet)
+
+### Step 3: Grant Storage Permissions
+
 ```bash
-# Grant storage permission
+# Setup Termux storage access
 termux-setup-storage
 
-# Navigate to shared storage
-cd ~/storage/downloads
-# atau
-cd ~/storage/shared
+# This will prompt to allow storage access
+# - Tap "Allow" di popup
 ```
 
-### 4. Clone atau Download Project
-
-**Option A - Clone from GitHub:**
+**Verify storage access:**
 ```bash
+# Navigate to downloads folder
 cd ~/storage/downloads
-git clone <repo-url> minecraft-converter
-cd minecraft-converter
+ls
+
+# Should show your device files
 ```
 
-**Option B - Manual Transfer:**
-1. Download converter files ke Windows/Mac
-2. Transfer via FTP atau copy ke Termux storage
-3. `cd` ke folder project
+### Step 4: Clone GitHub Repository
 
-### 5. Install Python Dependencies
 ```bash
-# Upgrade pip
+# Go to downloads folder
+cd ~/storage/downloads
+
+# Clone GVerterx repository
+git clone https://github.com/PickoCore/GVerterx.git
+
+# Enter folder
+cd GVerterx
+```
+
+**Check clone successful:**
+```bash
+ls -la
+# Should show: main.py, README.md, converter/, input/, output/, etc.
+```
+
+### Step 5: Upgrade Pip & Install Dependencies
+
+```bash
+# Upgrade pip to latest version
 pip install --upgrade pip
 
-# Install requirements
+# Install all required packages
 pip install -r requirements.txt
-
-# Atau gunakan UV jika tersedia
-# uv install
 ```
 
-## 🚀 Running the Converter
-
-### Interactive Mode (Recommended)
+**If slow, use this instead:**
 ```bash
-# Navigate to project directory
-cd ~/path/to/minecraft-converter
-
-# Run converter
-python3 main.py
+# With longer timeout
+pip install --default-timeout=1000 -r requirements.txt
 ```
 
-**Follow the menu:**
-1. Place Java resource pack di folder `input/`
-2. Run `python3 main.py`
-3. Select pack dari list
-4. Configure options
-5. Wait for conversion
-6. Output di `output/` folder
+**Expected time: ~3-5 minutes**
 
-### Command Line Mode
+### Step 6: Verify Installation
+
 ```bash
-# Basic conversion
-python3 main.py my_pack
+# Check Python version
+python --version
+# Should output: Python 3.10.x or higher
 
-# With verbose logging
-python3 main.py my_pack -v
+# Check if converter works
+python main.py
 
-# Convert .zip file
-python3 main.py pack.zip
+# Should show: 
+# ╔════════════════════════════════════════╗
+# ║  MINECRAFT RESOURCE PACK CONVERTER      ║
+# ║  v1.0.0 - Java → Bedrock                ║
+# ╚════════════════════════════════════════╝
 ```
+
+---
 
 ## 📁 Folder Structure di Termux
 
 ```
-~/storage/downloads/minecraft-converter/
-├── main.py
+~/storage/downloads/GVerterx/
+├── main.py                          # Run this file
+├── requirements.txt                 # Dependencies
 ├── converter/
-│   ├── config.py
-│   ├── core/
-│   └── ui/
-├── input/                    # Put your Java packs here
-├── output/                   # Converted Bedrock packs here
-├── logs/                     # Conversion logs
-└── README.md
+│   ├── config.py                    # Configuration
+│   ├── core/                        # Core converters
+│   │   ├── texture_converter.py
+│   │   ├── sound_converter.py
+│   │   ├── model_converter.py
+│   │   ├── font_converter.py
+│   │   ├── geyser_mapper.py
+│   │   └── resource_pack_converter.py
+│   ├── ui/
+│   │   └── cli.py                   # Beautiful interface
+│   └── utils/
+├── input/                           # Place Java packs here ⬅️
+├── output/                          # Converted packs here ⬅️
+├── logs/                            # Conversion logs
+└── README.md                        # Full documentation
 ```
-
-## 📤 Using Converted Packs
-
-### Option 1: Local Bedrock (Phone)
-```bash
-# After conversion, copy output pack
-cp -r output/my_pack_bedrock ~/storage/downloads/
-
-# Import into Minecraft:
-# 1. Open Minecraft
-# 2. Settings → Resource Packs
-# 3. Import folder → select converted pack
-# 4. Activate
-```
-
-### Option 2: GeyserMC Server (Remote)
-```bash
-# Copy Geyser mapping files
-cd output/my_pack_bedrock
-
-# Transfer ke server via:
-# - SCP/SFTP
-# - Cloud storage (Google Drive, Dropbox)
-# - USB cable
-
-# Server admin puts in GeyserMC/packs/ folder
-```
-
-### Option 3: Share with Others
-```bash
-# Create zip for distribution
-cd output
-zip -r my_pack_bedrock.zip my_pack_bedrock/
-
-# Share zip file dengan teman/server admin
-```
-
-## 🔧 Environment Setup
-
-### Increase Python Memory (jika conversion lambat)
-```bash
-# Before running converter
-export PYTHONHASHSEED=0
-export MALLOC_TRIM_THRESHOLD_=128000
-export MALLOC_MMAP_THRESHOLD_=131072
-
-python3 main.py my_pack
-```
-
-### Create Termux Shortcut
-```bash
-# Create startup script
-nano ~/start-converter.sh
-
-# Paste:
-#!/bin/bash
-cd ~/storage/downloads/minecraft-converter
-python3 main.py
-
-# Save: Ctrl+X, Y, Enter
-
-# Make executable
-chmod +x ~/start-converter.sh
-
-# Run:
-bash ~/start-converter.sh
-```
-
-## ⚠️ Troubleshooting
-
-### "Permission Denied"
-```bash
-# Grant execute permission
-chmod +x main.py
-chmod -R 755 converter/
-```
-
-### "Module not found"
-```bash
-# Reinstall requirements
-pip install --force-reinstall -r requirements.txt
-```
-
-### "FFmpeg not found"
-```bash
-# Install ffmpeg
-pkg install ffmpeg -y
-
-# Or skip audio conversion (OGG files only)
-```
-
-### Storage Access Issues
-```bash
-# Check permissions
-ls -la ~/storage/
-
-# If error, run:
-termux-setup-storage
-```
-
-### Pack not Found
-```bash
-# Check input folder exists
-ls -la input/
-
-# Make sure pack.mcmeta di root folder
-ls -la input/my_pack/pack.mcmeta
-```
-
-### Slow Conversion
-```bash
-# Free up memory
-termux-wake-lock  # Keep CPU awake
-
-# Check disk space
-df -h
-
-# Monitor progress
-tail -f logs/*.log
-```
-
-## 📊 Tips & Tricks
-
-### Batch Convert Multiple Packs
-```bash
-# Create script
-nano batch_convert.sh
-
-# Paste:
-#!/bin/bash
-for pack in input/*; do
-    if [ -d "$pack" ]; then
-        echo "Converting $(basename $pack)..."
-        python3 main.py "$(basename $pack)"
-    fi
-done
-
-# Run:
-bash batch_convert.sh
-```
-
-### Automate with Cron (if available)
-```bash
-# Create cron job
-pkg install cronie -y
-crontab -e
-
-# Add line (daily at 2 AM):
-# 0 2 * * * /data/data/com.termux/files/home/start-converter.sh
-```
-
-### Monitor Resources
-```bash
-# Watch system resources
-top
-
-# Or
-htop  # if installed (pkg install htop -y)
-```
-
-### Debug Issues
-```bash
-# Run with verbose logging
-python3 main.py my_pack -v
-
-# Check last log
-tail -n 50 logs/*.log
-```
-
-## 🌐 Network Features
-
-### Access from Computer
-```bash
-# Share via Python HTTP server
-cd output
-python3 -m http.server 8000
-
-# Access from computer: http://<termux-ip>:8000
-```
-
-### SSH Transfer
-```bash
-# Start SSH server (if installed)
-sshd
-
-# From computer:
-scp -r converted_pack user@<phone-ip>:/path/to/server/packs/
-```
-
-## 💾 Backup & Restore
-
-### Backup Converted Packs
-```bash
-# Create archive
-tar -czf packs_backup.tar.gz output/
-
-# Save to cloud storage or computer
-```
-
-### Restore Packs
-```bash
-# Extract archive
-tar -xzf packs_backup.tar.gz
-
-# Packs restored to output/ folder
-```
-
-## 📋 Termux-Specific Notes
-
-- **Home Directory**: `/data/data/com.termux/files/home/`
-- **Storage**: `/storage/emulated/0/` or `/sdcard/`
-- **Cache**: `~/.cache/` untuk temp files
-- **Python Path**: Termux uses own Python build
-- **File Permissions**: May need `chmod` after file transfer
-
-## 🎮 Final Steps
-
-1. **Verify Conversion**
-   ```bash
-   ls -la output/my_pack_bedrock/
-   cat output/my_pack_bedrock/manifest.json
-   ```
-
-2. **Test with Minecraft**
-   - Import to Bedrock locally, atau
-   - Give to GeyserMC server admin
-
-3. **Share Success**
-   - Enjoy custom textures/sounds!
-   - Share converted pack dengan community
-
-## 📞 Support
-
-If issues occur:
-1. Check logs in `logs/` folder
-2. Verify input pack format
-3. Ensure all dependencies installed
-4. Try running with `-v` flag for verbose output
 
 ---
 
-**Last Updated**: 2024-03-09  
-**Tested On**: Termux (Android 10+)
+## 🚀 Running the Converter
+
+### Step 1: Prepare Java Pack
+
+```bash
+# Navigate to project folder
+cd ~/storage/downloads/GVerterx
+
+# Copy Java pack to input folder
+# Option A: From Downloads
+cp ~/storage/downloads/YourPack.zip input/
+
+# Option B: From specific folder
+cp ~/storage/shared/MyResourcePack.zip input/
+
+# Verify
+ls input/
+# Should show your pack
+```
+
+### Step 2: Run Converter (Interactive)
+
+```bash
+# From project folder
+cd ~/storage/downloads/GVerterx
+
+# Run the converter
+python main.py
+```
+
+### Step 3: Follow Menu
+
+```
+╔════════════════════════════════════════╗
+║  MINECRAFT RESOURCE PACK CONVERTER      ║
+║  v1.0.0 - Java → Bedrock + GeyserMC    ║
+╚════════════════════════════════════════╝
+
+📁 Input packs found: 1
+   └─ YourPack
+
+Available Options:
+  1. Convert All Packs
+  2. Select Specific Pack
+  3. Advanced Options
+  4. View History
+  5. Exit
+
+Choose option (1-5): [1]
+```
+
+**Press 1 and Enter to start conversion**
+
+### Step 4: Wait for Conversion
+
+Progress bar akan menunjukkan:
+```
+Converting Textures... ████████████░░░░░░░░ 60%
+Converting Sounds...  ██████░░░░░░░░░░░░░░ 30%
+Converting Models...  ░░░░░░░░░░░░░░░░░░░░ 0%
+```
+
+Conversion time:
+- Small pack (50MB): ~30 detik
+- Medium pack (200MB): ~2 menit
+- Large pack (500MB): ~5-10 menit
+
+### Step 5: Check Output
+
+```bash
+# List converted packs
+ls output/
+
+# Check specific pack
+ls output/YourPack_bedrock/
+
+# Should show:
+# ├── manifest.json
+# ├── textures/
+# ├── sounds/
+# ├── models/
+# └── fonts/
+```
+
+---
+
+## 📤 Using Converted Packs
+
+### Option 1: Use Locally on Phone
+
+```bash
+# Navigate to output
+cd ~/storage/downloads/GVerterx/output
+
+# Copy to Minecraft folder
+cp -r YourPack_bedrock ~/storage/games/com.mojang/minecraftpe/resource_packs/
+
+# Open Minecraft:
+# 1. Settings → Resource Packs
+# 2. Select your pack
+# 3. Activate
+# 4. Done!
+```
+
+### Option 2: Share with Others
+
+```bash
+# Create zip file for distribution
+cd output
+zip -r YourPack_bedrock.zip YourPack_bedrock/
+
+# Copy to share folder
+cp YourPack_bedrock.zip ~/storage/shared/
+
+# Share via WhatsApp, Telegram, etc.
+```
+
+### Option 3: Use with GeyserMC Server
+
+```bash
+# If your server has GeyserMC:
+
+# 1. Zip the converted pack
+cd output
+zip -r YourPack_bedrock.zip YourPack_bedrock/
+
+# 2. Send to server admin
+# Via email, Discord, Telegram, etc.
+
+# 3. Server admin places in:
+# /plugins/geyser/packs/YourPack_bedrock.zip
+
+# 4. Restart GeyserMC
+# 5. Bedrock players can connect!
+```
+
+---
+
+## 🔧 Configuration & Customization
+
+### Edit Configuration
+
+```bash
+# Open config file
+nano converter/config.py
+
+# Edit settings:
+# - SOUND_QUALITY = 75 (0-100)
+# - TEXTURE_SCALE = 1.0 (0.5 = half, 2.0 = double)
+# - ENABLE_GEYSER_MAPPING = True
+
+# Save: Ctrl+X, Y, Enter
+```
+
+### Custom Geyser Items
+
+```bash
+# Edit Geyser mapper
+nano converter/core/geyser_mapper.py
+
+# Add custom items:
+CUSTOM_GEYSER_ITEMS = {
+    "your_item": {
+        "texture": "item/your_item",
+        "id": 9000
+    }
+}
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues & Solutions
+
+**1. "command not found: git"**
+```bash
+# Install git
+pkg install git -y
+
+# Retry clone
+git clone https://github.com/PickoCore/GVerterx.git
+```
+
+**2. "ModuleNotFoundError" saat run**
+```bash
+# Reinstall dependencies
+pip install --upgrade -r requirements.txt
+
+# Retry
+python main.py
+```
+
+**3. "Permission denied" error**
+```bash
+# Grant execute permission
+chmod +x main.py
+
+# Retry
+python main.py
+```
+
+**4. "pip is slow" atau timeout**
+```bash
+# Gunakan dengan timeout yang lebih lama
+pip install --default-timeout=1000 -r requirements.txt
+
+# Atau gunakan faster index
+pip install -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+```
+
+**5. Conversion sangat lambat**
+```bash
+# Option A: Reduce texture quality
+# Edit converter/config.py
+TEXTURE_SCALE = 0.5  # 50% size
+
+# Option B: Skip Geyser mapping
+ENABLE_GEYSER_MAPPING = False
+
+# Option C: Lower sound quality
+SOUND_QUALITY = 50  # (dari 75)
+```
+
+**6. "No space left on device"**
+```bash
+# Check storage
+df -h
+
+# Clean up:
+rm -rf ~/storage/downloads/GVerterx/temp/*
+rm -rf ~/.cache/pip
+pkg clean
+
+# Retry
+python main.py
+```
+
+**7. FFmpeg not found (untuk audio conversion)**
+```bash
+# Install FFmpeg
+pkg install ffmpeg -y
+
+# Retry conversion
+python main.py
+```
+
+**8. Storage access error**
+```bash
+# Re-setup storage
+termux-setup-storage
+
+# Allow permissions when popup appears
+# Retry conversion
+```
+
+---
+
+## 💡 Tips & Tricks
+
+### Speed Up Installation
+
+```bash
+# Use faster pip mirror
+pip install -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+
+# Or use tsinghua mirror
+pip install -i https://pypi.tsinghua.edu.cn/simple -r requirements.txt
+```
+
+### Monitor Conversion in Real-Time
+
+```bash
+# Open second terminal, tail logs
+tail -f logs/converter.log
+```
+
+### Batch Convert Multiple Packs
+
+```bash
+# Place all packs in input/ folder
+cp ~/storage/downloads/Pack1.zip input/
+cp ~/storage/downloads/Pack2.zip input/
+cp ~/storage/downloads/Pack3.zip input/
+
+# Run converter
+python main.py
+
+# Select "Convert All Packs"
+# All akan convert otomatis
+```
+
+### Check Conversion History
+
+```bash
+# View log file
+cat logs/converter.log
+
+# Last 20 lines
+tail -20 logs/converter.log
+
+# Real-time monitoring
+tail -f logs/converter.log
+```
+
+---
+
+## 📚 More Documentation
+
+- **[README.md](README.md)** - Complete feature list
+- **[QUICKSTART.md](QUICKSTART.md)** - 5 minute guide
+- **[GITHUB_SETUP.md](GITHUB_SETUP.md)** - All platforms setup
+- **[EXAMPLES.md](EXAMPLES.md)** - Usage examples
+
+---
+
+## 🔄 Updating Converter
+
+```bash
+# Navigate to project
+cd ~/storage/downloads/GVerterx
+
+# Pull latest changes
+git pull origin main
+
+# Update dependencies
+pip install --upgrade -r requirements.txt
+
+# Run latest version
+python main.py
+```
+
+---
+
+## 📞 Help & Support
+
+### If Something Doesn't Work
+
+1. **Check logs:**
+   ```bash
+   tail logs/converter.log
+   ```
+
+2. **Check Python version:**
+   ```bash
+   python --version
+   # Should be 3.10+
+   ```
+
+3. **Re-install dependencies:**
+   ```bash
+   pip install --force-reinstall -r requirements.txt
+   ```
+
+4. **Create fresh venv:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   python main.py
+   ```
+
+5. **Report issue on GitHub** dengan:
+   - Deskripsi masalah
+   - Error message lengkap
+   - Python version
+   - Pack name dan ukuran
+   - Screenshot
+
+---
+
+## ✨ What's Next
+
+After successful conversion:
+
+1. **Test the pack** - Try it on your phone
+2. **Share it** - Give to friends or servers
+3. **Customize it** - Edit config for your needs
+4. **Deploy** - Upload to GeyserMC servers
+5. **Extend** - Add custom items/blocks
+
+**Enjoy your converted resource packs! 🎉**
