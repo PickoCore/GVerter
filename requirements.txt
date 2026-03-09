@@ -1,0 +1,25 @@
+# Minecraft Resource Pack Converter Requirements
+
+# Core Dependencies
+click>=8.1.0              # CLI framework
+rich>=13.0.0              # Terminal UI (colorful output)
+pillow>=10.0.0            # Image processing (textures)
+
+# Data Processing
+pydantic>=2.0.0           # Data validation
+pyyaml>=6.0               # YAML parsing
+jsonschema>=4.0           # JSON schema validation
+python-dotenv>=1.0.0      # Environment variables
+
+# Utilities
+tqdm>=4.66.0              # Progress bars
+pathspec>=0.11.0          # Path matching
+
+# Development (optional)
+# pytest>=7.0.0           # Testing
+# black>=23.0.0           # Code formatting
+# flake8>=6.0.0           # Linting
+
+# Optional Dependencies for Enhanced Features:
+# ffmpeg-python>=0.2.1    # Audio conversion (requires ffmpeg binary)
+# numpy>=1.24.0           # Advanced image processing
